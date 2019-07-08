@@ -1,16 +1,16 @@
 # flutter_chat
 
-A new Flutter application.
+Flutter Chat with firebase realtime database.
 
-## Getting Started
+#How it works:
 
-This project is a starting point for a Flutter application.
+Before start chatting, you need to login with google.After that you can see list of user which are store in database.
+Tap on any user list item to redirect to chat screen where you can start chatting.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Following plugins are used.
+1) Fireabase Auth(https://pub.dev/packages/firebase_auth)
+    -For User authentication
+2) Firebase database(https://pub.dev/packages/firebase_database)
+    -Store user data in firebase database
+3) Shared Preference(https://pub.dev/packages/shared_preferences)
+    -Store user data to manage user session.
