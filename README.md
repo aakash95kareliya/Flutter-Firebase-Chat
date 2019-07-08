@@ -1,4 +1,4 @@
-# flutter_chat
+# Flutter Chat with firebase
 
 Flutter Chat with firebase realtime database.
 
