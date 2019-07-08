@@ -16,7 +16,7 @@ Following plugins are used.
     -Store user data to manage user session.
 
 <div>
-  <img src="https://github.com/er-aakash-kareliya/Flutter-Firebase-Chat/blob/master/device-2019-07-08-181114.png" height="500" width="270"/>
+  <img src="https://github.com/er-aakash-kareliya/Flutter-Firebase-Chat/blob/master/device-2019-07-08-181114.png" height="500" width="300"/>
 
-  <img src="https://github.com/er-aakash-kareliya/Flutter-Firebase-Chat/blob/master/device-2019-07-08-181143.png" height="500" width="270"/>
+  <img src="https://github.com/er-aakash-kareliya/Flutter-Firebase-Chat/blob/master/device-2019-07-08-181143.png" height="500" width="300"/>
 </div>
