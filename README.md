@@ -1,8 +1,8 @@
-# flutter_chat
+# Flutter Chat with firebase
 
 Flutter Chat with firebase realtime database.
 
-#How it works:
+# How it works:
 
 Before start chatting, you need to login with google.After that you can see list of user which are store in database.
 Tap on any user list item to redirect to chat screen where you can start chatting.
