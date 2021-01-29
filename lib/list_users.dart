@@ -17,7 +17,6 @@ class _ListUsersState extends State<ListUsers> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getSharedPref().then((pref) {
       email = pref.getString("EMAIL");

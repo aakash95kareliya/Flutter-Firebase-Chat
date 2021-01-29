@@ -1,5 +1,7 @@
+import 'package:encrypt/encrypt.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/main.dart';
 import 'package:flutter_chat/model/users.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,7 +32,6 @@ class _ChatAppState extends State<ChatApp> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     chatReference = _database.reference().child("chatMessage");

@@ -18,4 +18,8 @@ class CustomAESEncryption {
   String decrypt(encryption.Encrypted data) {
     return encrypter.decrypt(data, iv: iv);
   }
+
+  String decrypt64(String data) {
+    return encrypter.decrypt64(data, iv: iv);
+  }
 }

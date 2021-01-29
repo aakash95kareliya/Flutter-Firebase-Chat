@@ -1,3 +1,4 @@
+import 'package:encrypt/encrypt.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -11,9 +12,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'list_users.dart';
 import 'model/users.dart';
 
+Base64EncodeDecode base64encodeDecode = Base64EncodeDecode();
+CustomAESEncryption encryption = CustomAESEncryption();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try{
+  try {
     await Firebase.initializeApp(
         name: 'db2',
         options: FirebaseOptions(
@@ -23,9 +27,7 @@ void main() async {
           projectId: 'fir-chat-3cc2d',
           databaseURL: 'https://fir-chat-3cc2d-default-rtdb.firebaseio.com',
         ));
-  }catch(e){
-
-  }
+  } catch (e) {}
   runApp(new MaterialApp(
     home: MyApp(),
     routes: <String, WidgetBuilder>{
@@ -115,42 +117,19 @@ class _MyAppState extends State<MyApp> {
   Users setUserValue(User fbUser) {
     Person person =
         Person(fbUser.uid, DateTime.now().millisecondsSinceEpoch, DateTime.now().millisecondsSinceEpoch ~/ 1000);
-    Base64EncodeDecode base64encodeDecode = Base64EncodeDecode();
-    CustomAESEncryption encryption = CustomAESEncryption();
 
     var ikp = base64encodeDecode.encode(person.getIdentityKeyPair());
     var pks = base64encodeDecode.encode(person.getPreKeys());
     var rId = base64encodeDecode.encode(person.getRegistrationId().toString());
     var spk = base64encodeDecode.encode(person.getSignedPreKey());
 
-    return new Users(
-        fbUser.email,
-        false,
-        DateTime.now().millisecondsSinceEpoch,
-        fbUser.displayName,
-        true,
-        fbUser.phoneNumber,
-        false,
-        fbUser.uid,
-        encryption.encrypt(ikp),
-        encryption.encrypt(spk),
-        encryption.encrypt(pks),
-        encryption.encrypt(rId));
-  }
-}
+    ikp = Encrypted.from64(encryption.encrypt(ikp)).base64;
+    pks = Encrypted.from64(encryption.encrypt(pks)).base64;
+    rId = Encrypted.from64(encryption.encrypt(rId)).base64;
+    spk = Encrypted.from64(encryption.encrypt(spk)).base64;
 
-class _StateDataWidget extends InheritedWidget {
-  _MyAppState state;
-
-  _StateDataWidget({
-    Key key,
-    @required Widget child,
-    @required this.state,
-  }) : super(key: key, child: child);
-
-  @override
-  bool updateShouldNotify(InheritedWidget oldWidget) {
-    return true;
+    return new Users(fbUser.email, false, DateTime.now().millisecondsSinceEpoch, fbUser.displayName, true,
+        fbUser.phoneNumber, false, fbUser.uid, ikp, spk, pks, rId);
   }
 }
 
