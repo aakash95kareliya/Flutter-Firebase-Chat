@@ -14,7 +14,6 @@ import 'model/users.dart';
 
 Base64EncodeDecode base64encodeDecode = Base64EncodeDecode();
 CustomAESEncryption encryption = CustomAESEncryption();
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -115,21 +114,24 @@ class _MyAppState extends State<MyApp> {
   }
 
   Users setUserValue(User fbUser) {
+    int signedPreKeyId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     Person person =
-        Person(fbUser.uid, DateTime.now().millisecondsSinceEpoch, DateTime.now().millisecondsSinceEpoch ~/ 1000);
+        Person(deviceId: DateTime.now().millisecondsSinceEpoch, name :fbUser.uid, signedPreKeyId:signedPreKeyId);
 
     var ikp = base64encodeDecode.encode(person.getIdentityKeyPair());
-    var pks = base64encodeDecode.encode(person.getPreKeys());
+    var pks = person.getPreKeys();
     var rId = base64encodeDecode.encode(person.getRegistrationId().toString());
     var spk = base64encodeDecode.encode(person.getSignedPreKey());
+    var spkId = base64encodeDecode.encode(signedPreKeyId.toString());
 
     ikp = Encrypted.from64(encryption.encrypt(ikp)).base64;
     pks = Encrypted.from64(encryption.encrypt(pks)).base64;
     rId = Encrypted.from64(encryption.encrypt(rId)).base64;
+    spkId = Encrypted.from64(encryption.encrypt(spkId)).base64;
     spk = Encrypted.from64(encryption.encrypt(spk)).base64;
 
     return new Users(fbUser.email, false, DateTime.now().millisecondsSinceEpoch, fbUser.displayName, true,
-        fbUser.phoneNumber, false, fbUser.uid, ikp, spk, pks, rId);
+        fbUser.phoneNumber, false, fbUser.uid, ikp, spk, pks, rId,spkId);
   }
 }
 

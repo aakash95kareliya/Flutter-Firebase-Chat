@@ -1,12 +1,13 @@
-import 'package:encrypt/encrypt.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/main.dart';
 import 'package:flutter_chat/model/users.dart';
+import 'package:flutter_chat/utils/signal_algorithm1.dart';
+import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'model/chat_message.dart';
 
+// ignore: must_be_immutable
 class ChatApp extends StatefulWidget {
   Users users;
 
@@ -19,12 +20,18 @@ class ChatApp extends StatefulWidget {
 }
 
 class _ChatAppState extends State<ChatApp> {
+  SignalAlgorithm1 signalAlgorithm1 = SignalAlgorithm1();
   String email, uId;
   TextEditingController _controller = new TextEditingController();
   FirebaseDatabase _database = FirebaseDatabase.instance;
   var chatReference;
   List<ChatMessage> listChatMessage = new List();
   Users users;
+
+  Users senderUser;
+
+  Person senderPerson = Person();
+  Person receiverPerson = Person();
 
   _ChatAppState(Users users) {
     this.users = users;
@@ -35,14 +42,29 @@ class _ChatAppState extends State<ChatApp> {
     super.initState();
 
     chatReference = _database.reference().child("chatMessage");
+    receiverPerson = getPersonFromUser(receiverPerson, users);
     getSharedPref().then((pref) {
       email = pref.getString("EMAIL");
       uId = pref.getString("UID");
+      var reference = _database.reference().child("users").child(uId);
+      reference.once().then((value) {
+        senderPerson = getPersonFromUser(senderPerson, Users.fromJson(value));
+      });
     }).catchError((error) {
       print("Error : " + error.toString());
     });
 
     chatReference.onChildAdded.listen(_onEntryAdded);
+  }
+
+  Person getPersonFromUser(Person sPerson, Users users) {
+    sPerson.identityKeyPair = IdentityKeyPair.fromSerialized(users.getIdentityKeyPair());
+    sPerson.registrationId = users.getRegistrationId();
+    sPerson.signedPreKey = SignedPreKeyRecord.fromSerialized(users.getSPkPair());
+    sPerson.setAddressName(users.userId, users.lastSeenTime);
+    sPerson.spkId = users.getSpkId();
+    sPerson.preKeys = users.getPks().map((e) => PreKeyRecord.fromBuffer(e)).toList();
+    return sPerson;
   }
 
   @override
@@ -84,10 +106,8 @@ class _ChatAppState extends State<ChatApp> {
           decoration: BoxDecoration(
               color: Color(0XFFE7E7E7),
               borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                  bottomLeft: Radius.circular(16))),
-          child: Text(listChatMessage.message),
+                  topLeft: Radius.circular(16), topRight: Radius.circular(16), bottomLeft: Radius.circular(16))),
+          child: Text(signalAlgorithm1.decrypt(senderPerson, receiverPerson, listChatMessage.message)),
         )
       ],
     );
@@ -106,10 +126,8 @@ class _ChatAppState extends State<ChatApp> {
             decoration: BoxDecoration(
                 color: Color(0XFF5EC7C7),
                 borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                    bottomLeft: Radius.circular(16))),
-            child: Text(listChatMessage.message),
+                    topLeft: Radius.circular(16), topRight: Radius.circular(16), bottomLeft: Radius.circular(16))),
+            child: Text(signalAlgorithm1.decrypt(receiverPerson, senderPerson, listChatMessage.message)),
           )
         ],
       ),
@@ -128,7 +146,6 @@ class _ChatAppState extends State<ChatApp> {
                 textAlign: TextAlign.start,
                 decoration: InputDecoration(
                   enabledBorder: border,
-                  hasFloatingPlaceholder: true,
                   focusedBorder: border,
                   border: border,
                   filled: true,
@@ -137,18 +154,17 @@ class _ChatAppState extends State<ChatApp> {
                 ),
               ),
             ),
-            flex: 92,
+            flex: 90,
           ),
           Expanded(
             child: GestureDetector(
               child: GestureDetector(
                 onTap: () {
                   if (_controller.text.toString().trim().length > 0) {
-                    ChatMessage chatMessage = new ChatMessage(
-                        users.userId,
-                        uId,
-                        _controller.text.toString(),
-                        DateTime.now().millisecondsSinceEpoch);
+                    var strMessage =
+                        signalAlgorithm1.encrypt(senderPerson, receiverPerson, _controller.text.toString());
+                    ChatMessage chatMessage =
+                        new ChatMessage(users.userId, uId, strMessage, DateTime.now().millisecondsSinceEpoch);
 
                     chatReference.child(DateTime.now().millisecondsSinceEpoch.toString()).set(chatMessage.toJson());
                     _controller.clear();
@@ -157,8 +173,7 @@ class _ChatAppState extends State<ChatApp> {
                 child: Container(
                   margin: EdgeInsets.only(right: 4),
                   padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                      color: Colors.blueGrey, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: Colors.blueGrey, shape: BoxShape.circle),
                   child: Icon(
                     Icons.send,
                     color: Colors.white,
@@ -166,7 +181,7 @@ class _ChatAppState extends State<ChatApp> {
                 ),
               ),
             ),
-            flex: 08,
+            flex: 10,
           ),
         ],
       ),

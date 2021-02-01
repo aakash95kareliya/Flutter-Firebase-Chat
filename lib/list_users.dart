@@ -49,9 +49,9 @@ class _ListUsersState extends State<ListUsers> {
     return preferences;
   }
 
-  Future<DataSnapshot> getListUser() async {
+  Future<DataSnapshot> getListUser(){
     DatabaseReference userReference =
-        await _database.reference().child("users");
+        _database.reference().child("users");
     return userReference.once();
   }
 
