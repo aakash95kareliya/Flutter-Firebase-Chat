@@ -18,7 +18,6 @@ Uint8List parseKey(String key) {
   return getUInt8ListFromString(base64encodeDecode.decode(encryption.decrypt64(key)));
 }
 
-
 class Person {
   IdentityKeyPair identityKeyPair;
   int registrationId;
@@ -29,10 +28,11 @@ class Person {
   SignedPreKeyRecord signedPreKey;
   SignalProtocolAddress address;
 
-  Person({String name = "", int deviceId = 0, int signedPreKeyId = 0}) {
+  Person({String name = "", int deviceId = 0, int signedPreKeyId = 0, int count = 5}) {
     identityKeyPair = KeyHelper.generateIdentityKeyPair();
     registrationId = KeyHelper.generateRegistrationId(false);
-    preKeys = KeyHelper.generatePreKeys(1, 5);
+    preKeys = KeyHelper.generatePreKeys(1, count);
+    spkId = signedPreKeyId;
     signedPreKey = KeyHelper.generateSignedPreKey(identityKeyPair, signedPreKeyId);
     address = new SignalProtocolAddress(name, deviceId);
   }
@@ -51,6 +51,10 @@ class Person {
 
   int getRegistrationId() {
     return registrationId;
+  }
+
+  generateNewPreKeys() {
+    preKeys = KeyHelper.generatePreKeys(1, 1);
   }
 
   String getPreKeys() {
@@ -74,7 +78,7 @@ class SignalAlgorithm1 {
         sender.address.getDeviceId(),
         sender.preKeys[senderPreKeyIndex].id,
         sender.preKeys[senderPreKeyIndex].getKeyPair().publicKey,
-        sender.spkId,
+        sender.signedPreKey.id,
         sender.signedPreKey.getKeyPair().publicKey,
         sender.signedPreKey.signature,
         sender.identityKeyPair.getPublicKey());

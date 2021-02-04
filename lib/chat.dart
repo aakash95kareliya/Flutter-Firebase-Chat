@@ -68,6 +68,17 @@ class _ChatAppState extends State<ChatApp> {
     return sPerson;
   }
 
+  Person getPersonFromChatMessage(ChatMessage chatMessage) {
+    Person sPerson = Person();
+    sPerson.identityKeyPair = IdentityKeyPair.fromSerialized(chatMessage.getIdentityKeyPair());
+    sPerson.registrationId = chatMessage.getRegistrationId();
+    sPerson.signedPreKey = SignedPreKeyRecord.fromSerialized(chatMessage.getSPkPair());
+    sPerson.setAddressName(chatMessage.userId, chatMessage.deviceId);
+    sPerson.spkId = chatMessage.getSpkId();
+    sPerson.preKeys = chatMessage.getPks().map((e) => PreKeyRecord.fromBuffer(e)).toList();
+    return sPerson;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,7 +109,8 @@ class _ChatAppState extends State<ChatApp> {
     );
   }
 
-  senderMessage(ChatMessage listChatMessage) {
+  senderMessage(ChatMessage chatMessage) {
+    var recipient = getPersonFromChatMessage(chatMessage);
     return Row(
       children: <Widget>[
         Container(
@@ -108,13 +120,14 @@ class _ChatAppState extends State<ChatApp> {
               color: Color(0XFFE7E7E7),
               borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16), topRight: Radius.circular(16), bottomLeft: Radius.circular(16))),
-          child: Text(signalAlgorithm1.decrypt(senderPerson, receiverPerson, listChatMessage.message)),
+          child: Text(signalAlgorithm1.decrypt(recipient, senderPerson, chatMessage.message)),
         )
       ],
     );
   }
 
-  receiverMessage(ChatMessage listChatMessage) {
+  receiverMessage(ChatMessage chatMessage) {
+    var recipient = getPersonFromChatMessage(chatMessage);
     return Container(
       width: double.infinity,
       alignment: Alignment.topRight,
@@ -128,7 +141,7 @@ class _ChatAppState extends State<ChatApp> {
                 color: Color(0XFF5EC7C7),
                 borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(16), topRight: Radius.circular(16), bottomLeft: Radius.circular(16))),
-            child: Text(signalAlgorithm1.decrypt(receiverPerson, senderPerson, listChatMessage.message)),
+            child: Text(signalAlgorithm1.decrypt(recipient, receiverPerson, chatMessage.message)),
           )
         ],
       ),
@@ -162,17 +175,16 @@ class _ChatAppState extends State<ChatApp> {
               child: GestureDetector(
                 onTap: () {
                   if (_controller.text.toString().trim().length > 0) {
-                    var strMessage =
-                        signalAlgorithm1.encrypt(senderPerson, receiverPerson, _controller.text.toString());
-
-                    var encryptedData = signalAlgorithm1.encrypt(senderPerson, null, _controller.text.toString());
-                    print("EncryptedData : $encryptedData");
-                    var decryptedData = signalAlgorithm1.decrypt(senderPerson, null, encryptedData);
-                    print("DecryptedData : $decryptedData");
-
+                    // receiverPerson.generateNewPreKeys();
+                    Person person = Person(
+                        count: 1,
+                        deviceId: receiverPerson.getRegistrationId(),
+                        signedPreKeyId: (receiverPerson.spkId ~/ 1000));
+                    person.generateNewPreKeys();
+                    var strMessage = signalAlgorithm1.encrypt(person, senderPerson, _controller.text.toString());
                     ChatMessage chatMessage =
                         new ChatMessage(users.userId, uId, strMessage, DateTime.now().millisecondsSinceEpoch);
-
+                    encryption.encodeData(chatMessage, person);
                     chatReference.child(DateTime.now().millisecondsSinceEpoch.toString()).set(chatMessage.toJson());
                     _controller.clear();
                   }

@@ -50,6 +50,13 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // clearData();
+  }
+
+  clearData() async{
+    FirebaseAuth.instance.signOut();
+    var sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.clear();
   }
 
   setStateDetails(User firebaseUser, BuildContext context) {
