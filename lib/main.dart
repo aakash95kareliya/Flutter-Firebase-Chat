@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat/utils/base64_encode_decode.dart';
+import 'package:flutter_chat/utils/group_algorithm.dart';
 import 'package:flutter_chat/utils/key_value_encryption.dart';
 import 'package:flutter_chat/utils/signal_algorithm1.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -14,6 +15,8 @@ import 'model/users.dart';
 
 Base64EncodeDecode base64encodeDecode = Base64EncodeDecode();
 CustomAESEncryption encryption = CustomAESEncryption();
+GroupAlgorithm groupAlgorithm = GroupAlgorithm();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -116,7 +119,7 @@ class _MyAppState extends State<MyApp> {
   Users setUserValue(User fbUser) {
     int signedPreKeyId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     Person person =
-        Person(deviceId: DateTime.now().millisecondsSinceEpoch, name :fbUser.uid, signedPreKeyId:signedPreKeyId);
+        Person(deviceId: DateTime.now().millisecondsSinceEpoch, name: fbUser.uid, signedPreKeyId: signedPreKeyId);
 
     var ikp = base64encodeDecode.encode(person.getIdentityKeyPair());
     var pks = person.getPreKeys();
@@ -131,7 +134,7 @@ class _MyAppState extends State<MyApp> {
     spk = Encrypted.from64(encryption.encrypt(spk)).base64;
 
     return new Users(fbUser.email, false, DateTime.now().millisecondsSinceEpoch, fbUser.displayName, true,
-        fbUser.phoneNumber, false, fbUser.uid, ikp, spk, pks, rId,spkId);
+        fbUser.phoneNumber, false, fbUser.uid, ikp, spk, pks, rId, spkId);
   }
 }
 

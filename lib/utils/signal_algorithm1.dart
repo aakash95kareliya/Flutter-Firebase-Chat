@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_chat/main.dart';
@@ -12,6 +13,11 @@ Uint8List getUInt8ListFromString(String data) {
   Uint8List bytes = Uint8List.fromList(list);
   return bytes;
 }
+
+Uint8List parseKey(String key) {
+  return getUInt8ListFromString(base64encodeDecode.decode(encryption.decrypt64(key)));
+}
+
 
 class Person {
   IdentityKeyPair identityKeyPair;

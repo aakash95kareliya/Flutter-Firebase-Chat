@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/main.dart';
 import 'package:flutter_chat/model/users.dart';
 import 'package:flutter_chat/utils/signal_algorithm1.dart';
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
@@ -163,6 +164,12 @@ class _ChatAppState extends State<ChatApp> {
                   if (_controller.text.toString().trim().length > 0) {
                     var strMessage =
                         signalAlgorithm1.encrypt(senderPerson, receiverPerson, _controller.text.toString());
+
+                    var encryptedData = signalAlgorithm1.encrypt(senderPerson, null, _controller.text.toString());
+                    print("EncryptedData : $encryptedData");
+                    var decryptedData = signalAlgorithm1.decrypt(senderPerson, null, encryptedData);
+                    print("DecryptedData : $decryptedData");
+
                     ChatMessage chatMessage =
                         new ChatMessage(users.userId, uId, strMessage, DateTime.now().millisecondsSinceEpoch);
 
