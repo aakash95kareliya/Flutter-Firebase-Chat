@@ -86,7 +86,8 @@ class SignalAlgorithm1 {
     SessionBuilder.fromSignalStore(protocolStore, sender.address).processPreKeyBundle(bundle);
     // }
     SessionCipher cipher = SessionCipher.fromStore(protocolStore, sender.address);
-    CiphertextMessage encryptedMessage = cipher.encrypt(getUInt8ListFromString(data));
+
+    CiphertextMessage encryptedMessage = cipher.encrypt(Uint8List.fromList(utf8.encode(data)));
     return getStringFromKey(encryptedMessage.serialize());
   }
 
@@ -105,7 +106,7 @@ class SignalAlgorithm1 {
     } else {
       var uInt8ListFromString = getUInt8ListFromString(data);
       var decryptedData = cipher.decrypt(PreKeySignalMessage(uInt8ListFromString));
-      return getStringFromKey(decryptedData);
+      return utf8.decode(decryptedData);
     }
   }
 }
