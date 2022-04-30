@@ -21,13 +21,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp(
-        name: 'db2',
+        name: '{app_name}',
         options: FirebaseOptions(
-          appId: '1:128303390154:android:6807f0db0056b661520333',
-          apiKey: 'AIzaSyBUPB2tX1gbh3j_RSW-zrjAX05hJvYAVmA',
-          messagingSenderId: '128303390154',
-          projectId: 'fir-chat-3cc2d',
-          databaseURL: 'https://fir-chat-3cc2d-default-rtdb.firebaseio.com',
+          appId: '{app_id}',
+          apiKey: '{api_key}',
+          messagingSenderId: '{sender_id}',
+          projectId: '{project_id}',
+          databaseURL: '{database_url}',
         ));
   } catch (e) {}
   runApp(new MaterialApp(
