@@ -10,8 +10,8 @@ class CustomAESEncryption {
   var iv;
 
   CustomAESEncryption() {
-    final key = encryption.Key.fromUtf8("dRgUkXp2s5v8y/B?");
-    iv = encryption.IV.fromUtf8("WHFCYnRBOUU4NEk9");
+    final key = encryption.Key.fromUtf8("{key}");
+    iv = encryption.IV.fromUtf8("{iv_key}");
     encrypter = Encrypter(AES(key, mode: AESMode.cbc, padding: "PKCS7"));
   }
 
